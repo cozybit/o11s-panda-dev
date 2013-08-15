@@ -1,0 +1,3 @@
+#!/bin/bash
+mkdir -p /srv/nfs/pandaroot
+sudo tar -C /srv/nfs/pandaroot/ -xf output/images/rootfs.tar
