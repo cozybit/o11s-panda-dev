@@ -1,3 +1,13 @@
 #!/bin/bash
-mkdir -p /srv/nfs/pandaroot
-sudo tar -C /srv/nfs/pandaroot/ -vxf output/images/rootfs.tar
+
+ROOT=/srv/nfs/pandaroot
+
+sudo mkdir -p $ROOT
+sudo mkdir -p $ROOT/lib/firmware
+
+sudo cp -v htc_9271.fw $ROOT/lib/firmware
+
+#sudo cp -v hotplug.sh $ROOT/sbin/hotplug
+#sudo chmod +x $ROOT/sbin/hotplug
+
+sudo tar -C $ROOT/ -vxf output/images/rootfs.tar
