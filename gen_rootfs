@@ -1,13 +1,23 @@
 #!/bin/bash
 
+TFTP=/srv/tftp
 ROOT=/srv/nfs/pandaroot
 
 sudo mkdir -p $ROOT
-sudo mkdir -p $ROOT/lib/firmware
 
-sudo cp -v htc_9271.fw $ROOT/lib/firmware
+echo "Removing preivous root image from '$ROOT' ..."
+sudo rm -rf $ROOT/*
 
-#sudo cp -v hotplug.sh $ROOT/sbin/hotplug
-#sudo chmod +x $ROOT/sbin/hotplug
+FIRMWARE=$ROOT/lib/firmware
 
-sudo tar -C $ROOT/ -vxf output/images/rootfs.tar
+echo "Copying firmware to '$FIRMWARE' ..."
+sudo mkdir -p $FIRMWARE
+sudo cp -v htc_9271.fw $FIRMWARE
+
+echo "Copying kernel image to TFTP '$TFTP' ..."
+sudo cp -v output/images/uImage $TFTP
+
+echo "Extracting root image to '$ROOT' ..."
+sudo tar -C $ROOT/ -xf output/images/rootfs.tar
+
+echo "Done"
