@@ -1,0 +1,15 @@
+#!/bin/sh
+
+die() { echo "ERROR: $@"; exit 1 }
+
+SSID=cozyguest
+PINGHOST=google.com
+
+ip link 'set' dev wlan0 up || die "Failed to bring up wlan0"
+iw wlan0 connect -w $SSID || die "Failed to connect to SSID: $SSID"
+
+udhcpc -i wlan0 || die "Failed to get IP address via DHCP"
+
+{ e=`ping -c 1 $PINGHOST 2>&1`; } || die "Failed to ping host: $PINGHOST
+Error output:
+$e"
