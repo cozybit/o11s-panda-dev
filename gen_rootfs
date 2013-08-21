@@ -3,21 +3,64 @@
 TFTP=/srv/tftp
 ROOT=/srv/nfs/pandaroot
 
+die() {
+    echo "$@"
+    exit 1
+}
+
 sudo mkdir -p $ROOT
 
-echo "Removing preivous root image from '$ROOT' ..."
-sudo rm -rf $ROOT/*
+TEST="$ROOT/home/test"
+sudo umount $TEST/dev || die "Unable to unmount $TEST/dev"
+
+if [ -z "$NOCLEAN" ] ; then
+    echo "Removing preivous root image from '$ROOT' ..."
+    sudo rm -rf $ROOT/*
+else
+    echo "**NOT** removing preivous root image from '$ROOT' ..."
+fi
 
 FIRMWARE=$ROOT/lib/firmware
-
-echo "Copying firmware to '$FIRMWARE' ..."
 sudo mkdir -p $FIRMWARE
-sudo cp -v htc_9271.fw $FIRMWARE
+
+HTC_FW=htc_9271.fw
+echo "Copying '$HTC_FW' firmware to '$FIRMWARE' ..."
+sudo cp -v $HTC_FW $FIRMWARE
+
+FIRMWARE=$ROOT/lib/firmware/mrvl
+sudo mkdir -p $FIRMWARE
+
+SD8787_FW=sd8787_uapsta.bin
+echo "Copying '$SD8787_FW' firmware to '$FIRMWARE' ..."
+sudo cp -vf $SD8787_FW $FIRMWARE
+
+echo "Copying ath9k_htc test script..."
+sudo mkdir -p $ROOT/usr/bin/
+sudo cp -vf test_ath9k $ROOT/usr/bin/
 
 echo "Copying kernel image to TFTP '$TFTP' ..."
-sudo cp -v output/images/uImage $TFTP
+sudo cp -vf output/images/uImage $TFTP
 
 echo "Extracting root image to '$ROOT' ..."
 sudo tar -C $ROOT/ -xf output/images/rootfs.tar
+
+echo "Setting up vi for visudo..."
+
+pushd $ROOT/usr/bin
+sudo ln -vsf ../../bin/vi
+popd
+
+echo "Copying user information..."
+sudo cp -vf {sudoers,passwd,group,shadow} $ROOT/etc
+
+echo "Creating 'test' user home dir..."
+
+sudo mkdir -p $TEST
+
+[ ! -e "$TEST/dev/sd8787-test" ] || die "Is $TEST/dev already mounted?"
+sudo mkdir -p $TEST/dev
+
+sudo chown -R 1001:10 $TEST
+sudo mount --bind $HOME/dev $TEST/dev
 
 echo "Done"
