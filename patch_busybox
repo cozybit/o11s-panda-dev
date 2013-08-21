@@ -1,0 +1,38 @@
+#!/bin/bash
+
+WIRESHARK_VER=1.10.0
+WIRESHARK_MK=package/wireshark/wireshark.mk
+
+if ! grep "WIRESHARK_VERSION.*$WIRESHARK_VER" $WIRESHARK_MK &>/dev/null; then
+    echo "Updating wireshark version to $WIRESHARK_VER"
+    sed -i "s/\(WIRESHARK_VERSION = \).*/\1$WIRESHARK_VER/" $WIRESHARK_MK
+fi
+
+PATTERN="source.*[\"]package/python-scapy/Config[.]in[\"]"
+LINE="source \"package/python-scapy/Config.in\""
+CFG=package/Config.in
+
+if ! grep $PATTERN $CFG &>/dev/null; then
+    echo "Adding python-scapy to main config..."
+    echo       >>$CFG
+    echo $LINE >>$CFG
+fi
+
+D=package/python-scapy
+[ -e "$D" ] || mkdir -vp $D
+
+SCAPY_CFG=scapy_Config.in
+SCAPY_CFG_TARGET=$D/$SCAPY_CFG
+
+if [[ $SCAPY_CFG -nt $SCAPY_CFG_TARGET ]]; then
+    echo "Updating scapy Config.in..."
+    cp -v $SCAPY_CFG $D/
+fi
+
+SCAPY_MAKEFILE=python-scapy.mk
+SCAPY_MAKEFILE_TARGET=$D/$SCAPY_MAKEFILE
+
+if [[ $SCAPY_MAKEFILE -nt $SCAPY_MAKEFILE_TARGET ]]; then
+    echo "Updating scapy Makefile..."
+    cp -v $SCAPY_MAKEFILE $D/
+fi
