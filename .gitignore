@@ -8,3 +8,15 @@
 !uclibc.config
 !hotplug.sh
 !test_ath9k
+!sd8787_uapsta.bin
+!passwd
+!group
+!shadow
+!sudoers
+!patch_busybox
+!configure_busybox.sh
+!configure_linux.sh
+!configure_uclibc.sh
+!nfs_exports
+!scapy_Config.in
+!python-scapy.mk
