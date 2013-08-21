@@ -1,15 +1,31 @@
 #!/bin/sh
 
-die() { echo "ERROR: $@"; exit 1 }
+die() { echo "ERROR: $@"; exit 1; }
 
+IFACE=wlan0
 SSID=cozyguest
 PINGHOST=google.com
 
-ip link 'set' dev wlan0 up || die "Failed to bring up wlan0"
-iw wlan0 connect -w $SSID || die "Failed to connect to SSID: $SSID"
+iw reg 'set' US
 
-udhcpc -i wlan0 || die "Failed to get IP address via DHCP"
+echo "Brining up '$IFACE'..."
+ip link 'set' dev $IFACE up || die "Failed to bring up interface '$IFACE'"
 
-{ e=`ping -c 1 $PINGHOST 2>&1`; } || die "Failed to ping host: $PINGHOST
-Error output:
-$e"
+echo "Connecting '$IFACE' to SSID '$SSID'..."
+iw $IFACE connect -w $SSID || die "Failed to connect to SSID: $SSID"
+
+echo "Issuing DHCP request for '$IFACE'..."
+e=`udhcpc -i $IFACE 2>&1` || die "Failed to get IP address via DHCP:\n\n$e"
+
+echo "Pinging $PINGHOST from '$IFACE'..."
+e=`ping -c 1 $PINGHOST 2>&1` || die "Failed to ping host: $PINGHOST\n\n$e"
+
+echo "Disconnecting '$IFACE' from SSID '$SSID'..."
+iw $IFACE disconnect || die "Failed to disconnect from SSID: $SSID"
+
+echo "Brining down '$IFACE'..."
+ip link 'set' dev $IFACE down || die "Failed to bring interface '$IFACE' down"
+
+echo
+echo SUCCESS
+echo
