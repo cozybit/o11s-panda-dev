@@ -168,7 +168,7 @@ Download buildroot: http://buildroot.uclibc.org/downloads/buildroot-2013.05.tar.
 
 - Add the following line to `package/Config.in` in `$buildroot`:
 ```
-source \"package/python-scapy/Config.in"
+source "package/python-scapy/Config.in"
 ```
 
 ## Buildroot (continued)
@@ -301,7 +301,7 @@ be in the correct folder for the usbboot command).
 This should get to a point where it says it's looking in the folder
 `pxelinux.cfg/...`, e.g:
 
-<pre>
+```
 scanning bus for devices... 3 USB Device(s) found
        scanning bus for storage devices... 0 Storage Device(s) found
        scanning bus for ethernet devices... 1 Ethernet Device(s) found
@@ -310,9 +310,9 @@ BOOTP broadcast 1
 DHCP client bound to address 192.168.99.2
 missing environment variable: pxeuuid
 missing environment variable: ethaddr
-Retrieving file: **pxelinux.cfg/01-0e-60-eb-a6-46-01**
+Retrieving file: pxelinux.cfg/01-0e-60-eb-a6-46-01  # *** <<< THIS IS THE LINE ***
 Waiting for Ethernet connection... done.
-</pre>
+```
 
 Copy the mac address and make a folder:
 
