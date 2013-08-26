@@ -43,6 +43,8 @@ while getopts "ckChvfd:" options; do
     esac
 done
 
+UNDER_INSTALL_SH=1
+
 h1 "Requesting root... "
 sudo echo "...got root."
 
@@ -57,30 +59,32 @@ fi
 
 if [[ ! $DISABLE =~ noextract ]]; then
 
-    start_spinner "Extracting buildroot..."
+    (
+        [[ -z $CLEAN ]] || Q rm -rvf $BUILDROOT || stop_spinner "cleaning buildroot failed"
 
-    [[ -z $CLEAN ]] || Q rm -rvf $BUILDROOT || stop_spinner "cleaning buildroot failed"
+        Q mkdir -vp $BUILDROOT
 
-    Q mkdir -vp $BUILDROOT
+        [[ -d $BUILDROOT ]] || \
+            Q tar -xj -f buildroot.tbz2 \
+                --directory=$BUILDROOT \
+                --strip-components=1 || stop_spinner 1
 
-    [[ -d $BUILDROOT ]] || \
-        Q tar -xj -f buildroot.tbz2 \
-            --directory=$BUILDROOT \
-            --strip-components=1 || stop_spinner 1
+        stop_spinner 0
+    )&
+    start_spinner $! "Extracting buildroot..."
 
-    stop_spinner 0
+    (
+        T=$OUT/usbboot
+        [[ -z $CLEAN ]] || Q rm -rvf $T || die "cleaning usbboot failed"
 
-    start_spinner "Extracting usbboot..."
+        Q mkdir -vp $T
 
-    T=$OUT/usbboot
-    [[ -z $CLEAN ]] || Q rm -rvf $T || die "cleaning usbboot failed"
+        [[ -d $T ]] || \
+            Q dpkg -x usbboot.deb $T || stop_spinner 1
 
-    Q mkdir -vp $T
-
-    [[ -d $T ]] || \
-        Q dpkg -x usbboot.deb $T || stop_spinner 1
-
-    stop_spinner 0
+        stop_spinner 0
+    )&
+    start_spinner $! "Extracting usbboot..."
 
     _popd
 
@@ -92,22 +96,21 @@ h1 "Patching buildroot..."
 Q $ROOT/scripts/patch_buildroot || die "Failed to patch buildroot"
 
 if [[ -n $CLEAN ]]; then
-
+    (
+        Q rm -vrf dl/* || stop_spinner $?
+        Q find output/build -name ".stamp_downloaded" | xargs rm -vf \
+            || stop_spinner $?
+        stop_spinner 0
+    )&
     start_spinner "Cleaning buildroot..."
-
-    Q rm -vrf dl/* || stop_spinner $?
-    Q find output/build -name ".stamp_downloaded" | xargs rm -vf \
-        || stop_spinner $?
-
-    stop_spinner 0
 fi
 
 if [[ ! $DISABLE =~ nodownload ]]; then
-
-    start_spinner "Downloading buildroot packages (takes a long time)..."
-    Qorerr make source
-    stop_spinner $?
-
+    (
+        Qorerr make source 
+        stop_spinner $?
+    )&
+    start_spinner $! "Downloading buildroot packages (takes a long time)..."
 fi
 
 _popd
@@ -168,13 +171,7 @@ fi
 
 if [[ ! $DISABLE =~ nobuildroot ]]; then
 
-    _pushd $BUILDROOT
-
-    start_spinner "Building buildroot..."
-    Qorerr make || exit 1
-    stop_spinner $?
-
-    _popd
+    $SCRIPTS/build_buildroot
 
 fi
 
@@ -199,8 +196,8 @@ fi
 echo
 echo "PandaBoard dev environment should now be availabe..."
 echo
-echo "- SSH     : ssh test@${TARGET_IP}"
 echo "- Console : screen -rd ${SCREEN_NAME}"
+echo "- SSH     : ssh test@${TARGET_IP}"
 echo "- NFS     : ${NFS_ROOT}"
 echo "- Kernel  : ${TFTP_ROOT}/uImage"
 echo "- Modules : $(echo ${NFS_ROOT}/lib/modules/*/)"

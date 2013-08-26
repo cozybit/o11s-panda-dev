@@ -139,15 +139,17 @@ download() {
 
     [ -e $output ] && return 0
 
-    start_spinner "Downloading $url..."
+    (
+        local evalme="echo \$${url}_URL"
 
-    local evalme="echo \$${url}_URL"
+        trap "rm $output" EXIT
+        Q wget `eval $evalme` -O $output
+        trap - EXIT
 
-    trap "rm $output" EXIT
-    Q wget `eval $evalme` -O $output
-    trap - EXIT
+        stop_spinner $?
+    ) &
 
-    stop_spinner $?
+    start_spinner $! "Downloading $url..."
 }
 
 h1()
@@ -186,24 +188,39 @@ install_pkg() {
     local pkgname=$1
     local failmsg=$2
 
-    start_spinner "Installing host support package: $pkgname..."
+    (
+        if [[ -z $FORCE ]]; then
+            local option="--trivial-only"
+        else
+            local option="--assume-yes"
+        fi
 
-    if [[ -z $FORCE ]]; then
-        local option="--trivial-only"
-    else
-        local option="--assume-yes"
-    fi
+        Qorerr sudo apt-get install $pkgname $option
+        stop_spinner $? $failmsg
+    )&
 
-    Qorerr sudo apt-get install $pkgname $option
-    stop_spinner $? $failmsg
+    start_spinner $! "Installing host support package: $pkgname..."
 }
 
 start_service() {
     local svcname=$1
-    start_spinner "Starting $svcname"
-    { Qorerr sudo service $svcname restart \
-        || stop_spinner $? "Failed to start service: $svcname"; } \
-    && stop_spinner 0
+    (
+        { Qorerr sudo service $svcname restart \
+            || stop_spinner $? "Failed to start service: $svcname"; } \
+        && stop_spinner 0
+
+    )&
+    start_spinner $! "Starting $svcname"
+}
+
+stop_service() {
+    local svcname=$1
+    (
+        { Qorerr sudo service $svcname stop \
+            || stop_spinner $? "Failed to start service: $svcname"; } \
+        && stop_spinner 0
+    ) &
+    start_spinner $! "Stopping $svcname"
 }
 
 find_usb_dev() {
