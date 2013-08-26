@@ -1,0 +1,9 @@
+#!/bin/bash
+
+source `dirname $0`/common.sh
+
+h1 "Starting services..."
+
+start_service nfs-kernel-server
+start_service xinetd
+start_service udhcpd
