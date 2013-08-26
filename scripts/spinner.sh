@@ -28,19 +28,21 @@ _C_RESET="\e[0m"
 
 start_spinner()
 {
-    local pid=$1
-    local msg=$2
+    #local pid=$1
+    local msg=$1
     local delay=0.25
     local spinstr='|/-\'
+    #local VERBOSE=1
     echo -n ">>> $msg "
-    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
-        local temp=${spinstr#?}
-        printf "[%c]  " "$spinstr"
-        local spinstr=$temp${spinstr%"$temp"}
-        sleep $delay
-        printf "\b\b\b\b\b"
-    done
-    printf "    \b\b\b\b\n"
+    #while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+    #    local temp=${spinstr#?}
+    #    [[ -n $VERBOSE ]] || printf "[%c]  " "$spinstr"
+    #    local spinstr=$temp${spinstr%"$temp"}
+    #    sleep $delay
+    #    [[ -n $VERBOSE ]] || printf "\b\b\b\b\b"
+    #done
+    #[[ -n $VERBOSE ]] || printf "    \b\b\b\b"
+    echo
 }
 
 stop_spinner()

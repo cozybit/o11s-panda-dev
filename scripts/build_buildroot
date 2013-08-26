@@ -31,7 +31,7 @@ fi
 
 _pushd $BUILDROOT
 
-(Qorerr make || die "Make failed") &
-start_spinner $! "Building buildroot..."
+start_spinner "Building buildroot..."
+Qorerr make || die "Make failed"
 
 _popd

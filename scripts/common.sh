@@ -137,7 +137,10 @@ download() {
     local url=$1
     local output=$2
 
-    [ -e $output ] && return 0
+    Q echo Downloading $url to $output
+    [[ -e $output ]] && return 0
+
+    start_spinner "Downloading $url..."
 
     (
         local evalme="echo \$${url}_URL"
@@ -147,9 +150,7 @@ download() {
         trap - EXIT
 
         stop_spinner $?
-    ) &
-
-    start_spinner $! "Downloading $url..."
+    )
 }
 
 h1()
@@ -188,6 +189,8 @@ install_pkg() {
     local pkgname=$1
     local failmsg=$2
 
+    start_spinner "Installing host support package: $pkgname..."
+
     (
         if [[ -z $FORCE ]]; then
             local option="--trivial-only"
@@ -197,30 +200,28 @@ install_pkg() {
 
         Qorerr sudo apt-get install $pkgname $option
         stop_spinner $? $failmsg
-    )&
-
-    start_spinner $! "Installing host support package: $pkgname..."
+    )
 }
 
 start_service() {
     local svcname=$1
+    start_spinner "Starting $svcname"
     (
         { Qorerr sudo service $svcname restart \
             || stop_spinner $? "Failed to start service: $svcname"; } \
         && stop_spinner 0
 
-    )&
-    start_spinner $! "Starting $svcname"
+    )
 }
 
 stop_service() {
     local svcname=$1
+    start_spinner "Stopping $svcname"
     (
         { Qorerr sudo service $svcname stop \
             || stop_spinner $? "Failed to start service: $svcname"; } \
         && stop_spinner 0
-    ) &
-    start_spinner $! "Stopping $svcname"
+    )
 }
 
 find_usb_dev() {
@@ -388,6 +389,18 @@ generate_pxe_config() {
     h2 "Generating pxeconfig: $pxecfg"
 
     Q sudo cp -v "$config" "$pxecfg"
+}
+
+is_empty_dir() {
+    local dir=$1
+    [[ -n $dir ]] || die "is_empty_dir <directory>"
+    if [[ ! -e $dir ]]; then
+        return 0
+    fi
+    if [[ ! -d $dir ]]; then
+        return 0
+    fi
+    [[ $(ls -A "$dir" -1 | wc -l) -le 0 ]]
 }
 
 Q echo "ROOT: $ROOT"

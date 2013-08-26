@@ -59,36 +59,37 @@ fi
 
 if [[ ! $DISABLE =~ noextract ]]; then
 
-    (
-        [[ -z $CLEAN ]] || Q rm -rvf $BUILDROOT || stop_spinner "cleaning buildroot failed"
+    start_spinner "Extracting buildroot ($BUILDROOT)..."
 
+    [[ -z $CLEAN ]] || Q rm -rvf $BUILDROOT || stop_spinner "cleaning buildroot failed"
+
+    if is_empty_dir $BUILDROOT; then
         Q mkdir -vp $BUILDROOT
+        Q tar -xvj -f buildroot.tbz2 \
+            --directory=$BUILDROOT \
+            --strip-components=1 || stop_spinner 1
+    else
+        echo "Buildroot dir was not empty"
+    fi
 
-        [[ -d $BUILDROOT ]] || \
-            Q tar -xj -f buildroot.tbz2 \
-                --directory=$BUILDROOT \
-                --strip-components=1 || stop_spinner 1
+    stop_spinner 0
 
-        stop_spinner 0
-    )&
-    start_spinner $! "Extracting buildroot..."
+    T=$OUT/usbboot
+    start_spinner "Extracting usbboot ($T)..."
 
-    (
-        T=$OUT/usbboot
-        [[ -z $CLEAN ]] || Q rm -rvf $T || die "cleaning usbboot failed"
+    [[ -z $CLEAN ]] || Q rm -rvf $T || die "cleaning usbboot failed"
 
+    if is_empty_dir $T; then
         Q mkdir -vp $T
+        Q dpkg -x usbboot.deb $T || stop_spinner 1
+    else
+        echo "Usbboot dir was not empty"
+    fi
 
-        [[ -d $T ]] || \
-            Q dpkg -x usbboot.deb $T || stop_spinner 1
-
-        stop_spinner 0
-    )&
-    start_spinner $! "Extracting usbboot..."
-
-    _popd
-
+    stop_spinner 0
 fi
+
+_popd
 
 _pushd $BUILDROOT
 
@@ -96,21 +97,17 @@ h1 "Patching buildroot..."
 Q $ROOT/scripts/patch_buildroot || die "Failed to patch buildroot"
 
 if [[ -n $CLEAN ]]; then
-    (
-        Q rm -vrf dl/* || stop_spinner $?
-        Q find output/build -name ".stamp_downloaded" | xargs rm -vf \
-            || stop_spinner $?
-        stop_spinner 0
-    )&
     start_spinner "Cleaning buildroot..."
+    Q rm -vrf dl/* || stop_spinner $?
+    Q find output/build -name ".stamp_downloaded" | xargs rm -vf \
+        || stop_spinner $?
+    stop_spinner 0
 fi
 
 if [[ ! $DISABLE =~ nodownload ]]; then
-    (
-        Qorerr make source 
-        stop_spinner $?
-    )&
-    start_spinner $! "Downloading buildroot packages (takes a long time)..."
+    start_spinner "Downloading buildroot packages (takes a long time)..."
+    Qorerr make source 
+    stop_spinner $?
 fi
 
 _popd
