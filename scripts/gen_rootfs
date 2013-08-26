@@ -1,48 +1,54 @@
 #!/bin/bash
 
-TFTP=/srv/tftp
-ROOT=/srv/nfs/pandaroot
+source `dirname $0`/common.sh
 
-die() {
-    echo "$@"
-    exit 1
-}
+TFTP=$TFTP_ROOT
+ROOT=$NFS_ROOT
 
 sudo mkdir -p $ROOT
 
-TEST="$ROOT/home/test"
-sudo umount $TEST/dev || die "Unable to unmount $TEST/dev"
+TEST=$DEV_TARGET
 
-if [ -z "$NOCLEAN" ] ; then
+if mount | grep $TEST; then
+    sudo umount $TEST || die "Unable to unmount $TEST"
+fi
+
+if [[ $(mount | grep '^/' | grep -v '^/dev' | wc -l) -gt 0 ]] ; then
+    mount | grep '^/' | grep -v '^/dev' 
+    die "**WARNING** Something from host filesystem is still mounted!"
+    CLEAN_TARGET=
+fi
+
+if [[ -z "$CLEAN_TARGET" ]] ; then
+    echo "**NOT** removing preivous root image from '$ROOT' ..."
+else
     echo "Removing preivous root image from '$ROOT' ..."
     sudo rm -rf $ROOT/*
-else
-    echo "**NOT** removing preivous root image from '$ROOT' ..."
 fi
 
 FIRMWARE=$ROOT/lib/firmware
 sudo mkdir -p $FIRMWARE
 
-HTC_FW=htc_9271.fw
+HTC_FW=$TARGET_OVERLAY/htc_9271.fw
 echo "Copying '$HTC_FW' firmware to '$FIRMWARE' ..."
 sudo cp -v $HTC_FW $FIRMWARE
 
 FIRMWARE=$ROOT/lib/firmware/mrvl
 sudo mkdir -p $FIRMWARE
 
-SD8787_FW=sd8787_uapsta.bin
+SD8787_FW=$MRVL_FIRMWARE
 echo "Copying '$SD8787_FW' firmware to '$FIRMWARE' ..."
 sudo cp -vf $SD8787_FW $FIRMWARE
 
 echo "Copying ath9k_htc test script..."
 sudo mkdir -p $ROOT/usr/bin/
-sudo cp -vf test_ath9k $ROOT/usr/bin/
+sudo cp -vf $TARGET_OVERLAY/test_ath9k $ROOT/usr/bin/
 
 echo "Copying kernel image to TFTP '$TFTP' ..."
-sudo cp -vf output/images/uImage $TFTP
+sudo cp -vf $BUILDROOT/output/images/uImage $TFTP
 
 echo "Extracting root image to '$ROOT' ..."
-sudo tar -C $ROOT/ -xf output/images/rootfs.tar
+sudo tar -C $ROOT/ -xf $BUILDROOT/output/images/rootfs.tar
 
 echo "Setting up vi for visudo..."
 
@@ -51,16 +57,17 @@ sudo ln -vsf ../../bin/vi
 popd
 
 echo "Copying user information..."
-sudo cp -vf {sudoers,passwd,group,shadow} $ROOT/etc
+sudo cp -vf $TARGET_OVERLAY/{sudoers,passwd,group,shadow} $ROOT/etc
 
 echo "Creating 'test' user home dir..."
 
 sudo mkdir -p $TEST
 
-[ ! -e "$TEST/dev/sd8787-test" ] || die "Is $TEST/dev already mounted?"
-sudo mkdir -p $TEST/dev
+if Q mount | grep $TEST; then
+    die "Is $TEST already mounted?"
+fi
 
-sudo chown -R 1001:10 $TEST
-sudo mount --bind $HOME/dev $TEST/dev
+sudo chown -R 1001:10 $TEST_HOME
+sudo mount --bind $DEV_HOST $TEST
 
 echo "Done"

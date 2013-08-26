@@ -4,4 +4,4 @@ config BR2_PACKAGE_PYTHON_SCAPY
 	help
 	  Scapy python lib
 	  
-	  https://github.com/cozybit/scapy
+	  @SCAPY_URL@

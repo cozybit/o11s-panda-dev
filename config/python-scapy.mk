@@ -4,9 +4,9 @@
 #
 #############################################################
 
-PYTHON_SCAPY_VERSION         = master
+PYTHON_SCAPY_VERSION         = @SCAPY_VERSION@
 PYTHON_SCAPY_SOURCE          = $(PYTHON_SCAPY_VERSION).tar.gz
-PYTHON_SCAPY_SITE            = https://github.com/cozybit/scapy/archive/
+PYTHON_SCAPY_SITE            = @SCAPY_URL@
 PYTHON_SCAPY_INSTALL_STAGING = YES
 PYTHON_SCAPY_DEPENDENCIES    = python
 

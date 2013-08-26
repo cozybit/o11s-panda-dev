@@ -1,0 +1,75 @@
+#!/bin/bash
+
+source `dirname $0`/common.sh
+
+WIRESHARK_MK=$BUILDROOT/package/wireshark/wireshark.mk
+
+echo "Wireshark makefile: $WIRESHARK_MK"
+
+if ! grep "WIRESHARK_VERSION.*$WIRESHARK_VER" $WIRESHARK_MK &>/dev/null; then
+    echo "Updating wireshark version to $WIRESHARK_VER"
+    sed -i "s/\(WIRESHARK_VERSION = \).*/\1$WIRESHARK_VER/" $WIRESHARK_MK
+fi
+
+PATTERN="source.*[\"]package/python-scapy/Config[.]in[\"]"
+LINE="source \"package/python-scapy/Config.in\""
+CFG=$BUILDROOT/package/Config.in
+
+echo "Package config: $CFG"
+
+if ! grep $PATTERN $CFG &>/dev/null; then
+    echo "Adding python-scapy to main config..."
+    echo       >>$CFG
+    echo $LINE >>$CFG
+fi
+
+D=package/python-scapy
+[ -e "$D" ] || mkdir -vp $D
+
+update_if_newer() {
+
+    local src=$1
+    [[ -n $src ]] || die "Need a source file"
+
+    local dst=$2
+    [[ -n $dst ]] || die "Need a destination file"
+
+    local src_cmp=`echo $src | sed s#[.]sub_cfg_vars##`
+
+    if [[ ! -f $dst || $src_cmp -nt $dst ]]; then
+        echo "Updating '$dst'..."
+        cp -vf $src $dst
+    fi
+}
+
+_pushd $BUILDROOT
+
+BR_CFG_SRC=$(sub_cfg_vars $CONF/buildroot.config)
+BR_CFG_DST=$BUILDROOT/.config
+update_if_newer $BR_CFG_SRC $BR_CFG_DST
+
+SCAPY_CFG_SRC=$(sub_cfg_vars $CONF/scapy_Config.in)
+SCAPY_CFG_DST=$D/Config.in
+update_if_newer $SCAPY_CFG_SRC $SCAPY_CFG_DST
+
+SCAPY_MAKEFILE_SRC=$(sub_cfg_vars $CONF/python-scapy.mk)
+SCAPY_MAKEFILE_DST=$D/python-scapy.mk
+
+update_if_newer $SCAPY_MAKEFILE_SRC $SCAPY_MAKEFILE_DST
+
+UCLIBC_CONFIG_SRC=$(sub_cfg_vars $CONF/uclibc.config)
+UCLIBC_CONFIG_DST=$BUILDROOT/uclibc.config
+
+update_if_newer $UCLIBC_CONFIG_SRC $UCLIBC_CONFIG_DST
+
+BUSYBOX_CONFIG_SRC=$(sub_cfg_vars $CONF/busybox.config)
+BUSYBOX_CONFIG_DST=$BUILDROOT/busybox.config
+
+update_if_newer $BUSYBOX_CONFIG_SRC $BUSYBOX_CONFIG_DST
+
+LINUX_CONFIG_SRC=$(sub_cfg_vars $CONF/linux.config)
+LINUX_CONFIG_DST=$BUILDROOT/linux.config
+
+update_if_newer $LINUX_CONFIG_SRC $LINUX_CONFIG_DST
+
+_popd

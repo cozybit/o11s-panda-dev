@@ -19,7 +19,15 @@
 #
 # Also see: test.sh
 
-trap '[ -n "$_sp_pid" ] && stop_spinner 1' EXIT
+trap 'stop_spinner 0' EXIT
+trap 'stop_spinner 1 interrupted' INT
+
+_MSG_ON_SUCC="DONE"
+_MSG_ON_FAIL="FAIL"
+_C_WHITE="\e[1;37m"
+_C_GREEN="\e[1;32m"
+_C_RED="\e[1;31m"
+_C_RESET="\e[0m"
 
 function _spinner() {
     # $1 start/stop
@@ -27,13 +35,6 @@ function _spinner() {
     # on start: $2 display message
     # on stop : $2 process exit status
     #           $3 spinner function pid (supplied from stop_spinner)
-
-    local on_success="DONE"
-    local on_fail="FAIL"
-    local white="\e[1;37m"
-    local green="\e[1;32m"
-    local red="\e[1;31m"
-    local nc="\e[0m"
 
     case $1 in
         start)
@@ -56,7 +57,7 @@ function _spinner() {
             ;;
         stop)
             if [[ -z ${3} ]]; then
-                echo "spinner is not running.."
+                #echo "spinner is not running.."
                 return 1
             fi
 
@@ -65,11 +66,11 @@ function _spinner() {
             # inform the user uppon success or failure
             echo -en "\b["
             if [[ $2 -eq 0 ]]; then
-                echo -en "${green}${on_success}${nc}"
+                echo -en "${_C_GREEN}${_MSG_ON_SUCC}${_C_RESET}"
             else
-                echo -en "${red}${on_fail}${nc}"
+                echo -en "${_C_RED}${_MSG_ON_FAIL}${_C_RESET}"
             fi
-            echo -e "]"
+            echo -ne "]"
             ;;
         *)
             echo "invalid argument, try {start/stop}"
@@ -80,6 +81,7 @@ function _spinner() {
 
 function start_spinner {
     if [ -n "$VERBOSE" ]; then
+        echo -en "\b>>> "
         echo $1
         return 0
     fi
@@ -91,16 +93,35 @@ function start_spinner {
 }
 
 function stop_spinner {
+
+    local exit_code=$1
+    shift
+
+    local msg=${@}
+
     if [ -n "$VERBOSE" ]; then
-        if [[ $1 -ne 0 ]]; then
-            echo "[FAIL]"
+
+        echo -en "\b["
+        if [[ $exit_code -ne 0 ]]; then
+            echo -ne "${_C_RED}${_MSG_ON_FAIL}${_C_RESET}"
         else
-            echo "[SUCCESS]"
+            echo -ne "${_C_GREEN}${_MSG_ON_SUCC}${_C_RESET}"
         fi
-        return 0
+        echo -en "] "
+
+    else
+        # $1 : command exit status
+        _spinner "stop" $exit_code $_sp_pid
+        unset _sp_pid
     fi
-    # $1 : command exit status
-    _spinner "stop" $1 $_sp_pid
-    unset _sp_pid
+
+    if [[ $exit_code -ne 0 ]]; then
+        echo " $msg"
+        exit $?
+    fi
+
+    echo
+
+    return $exit_code
 }
 

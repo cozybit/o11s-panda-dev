@@ -1,0 +1,15 @@
+#!/bin/bash
+
+source `dirname $0`/common.sh
+
+h1 "Press <enter> to attach to pandaboard console (press CTRL-A K, to exit)..."
+h2 "Login with test (empty password) or root (no password)"
+
+read
+
+if sudo screen -ls $SCREENNAME | grep $SCREENNAME 2>/dev/null; then
+    sudo screen -rd $SCREENNAME
+    exit 0
+fi
+
+sudo screen -S $SCREENNAME $(find_usb_serial) 115200

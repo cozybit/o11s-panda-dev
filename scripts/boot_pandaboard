@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source `dirname $0`/common.sh
+
+ask_for_panda_reset
+
+D=$OUT/usbboot/usr/lib/u-boot/omap4_panda_splusb/
+
+cd $D
+sudo usbboot MLO u-boot.img \
+    || die "failed to boot pandaboard via usb"

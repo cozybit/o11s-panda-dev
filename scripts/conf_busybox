@@ -3,4 +3,6 @@
 source `dirname $0`/common.sh
 
 T=$BUILDROOT/output/build/busybox-1.21.0/.config
-cp $CONF/busybox.config $T && (cd $BUILDROOT && make busybox-menuconfig) && cp $T $CONF/busybox.config
+
+cp $CONF/busybox.config $T && (cd $BUILDROOT && make busybox-menuconfig) \
+    && cp $T $CONF/busybox.config

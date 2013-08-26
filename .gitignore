@@ -6,3 +6,5 @@ vendor/*.tbz2
 vendor/*.tar.gz
 vendor/*.tar.bz2
 vendor/*.deb
+overlay/host/*.sub_cfg_vars
+config/*.sub_cfg_vars
