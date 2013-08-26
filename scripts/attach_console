@@ -7,9 +7,9 @@ h2 "Login with test (empty password) or root (no password)"
 
 read
 
-if sudo screen -ls $SCREENNAME | grep $SCREENNAME 2>/dev/null; then
-    sudo screen -rd $SCREENNAME
+if sudo screen -ls $SCREEN_NAME | grep $SCREEN_NAME 2>/dev/null; then
+    sudo screen -rd $SCREEN_NAME
     exit 0
 fi
 
-sudo screen -S $SCREENNAME $(find_usb_serial) 115200
+sudo screen -S $SCREEN_NAME $(find_usb_serial) 115200
