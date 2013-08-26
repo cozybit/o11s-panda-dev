@@ -199,7 +199,10 @@ fi
 echo
 echo "PandaBoard dev environment should now be availabe..."
 echo
-echo "- SSH     : ssh test@192.168.99.2"
-echo "- Console : screen -rd pandaconsole"
+echo "- SSH     : ssh test@${TARGET_IP}"
+echo "- Console : screen -rd ${SCREEN_NAME}"
+echo "- NFS     : ${NFS_ROOT}"
+echo "- Kernel  : ${TFTP_ROOT}/uImage"
+echo "- Modules : $(echo ${NFS_ROOT}/lib/modules/*/)"
 echo
 echo "Also see: scripts/attach_console"
