@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source `dirname $0`/common.sh
+
+T=$BUILDROOT/.config
+
+cp $CONF/buildroot.config $T && (cd $BUILDROOT && make menuconfig) \
+    && cp $T $CONF/buildroot.config
