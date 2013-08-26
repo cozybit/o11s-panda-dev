@@ -88,4 +88,46 @@ The configure how this process happens, there are two entry points:
     -h         Show this message.
     ```
 
-The following scripts are important:
+The following scripts are important (in the `scripts` folder):
+
+    - `conf_buildroot`: configures the buildroot, which, in particular, allows
+      for additional package selection on the target.
+
+    - `conf_linux`: configures linux for buildroot
+
+    - `conf_uclibc`: configures the uclibc for buildroot
+
+    - `conf_busybox`: configures BusyBox for the buildroot environment.
+      BusyBox implements almost everything needed for a minimal Linux system
+      (i.e. init system, shell, userlands utils).  The exception being that
+      certain "full blown" utilities needed to be installed to enable the o11s
+      sd8787 tests to be run, like: bash, udev, and other userland utils.
+
+    - `patch_buildroot`: pushes the configuration scripts into the buildroot
+      (built with the above commands).
+
+    - `build_buildroot`: builds the buildroot and pushes the generate kernel
+      image and root filesystem to TFTP and NFS, respectively.
+
+    - `boot_pandaboard`: Uses usbboot to boot the pandaboard, use this script
+      to quickly reboot the pandboard.
+
+    - `attach_console`: Allows the user to attach the pandaboards main console
+      (usually on /dev/ttyUSB0)-- uses screen to attach to the console.
+      **WARNING: this leaves screen running on /dev/ttyUSB0 unless screen is
+      killed (with CTRL-A K)-- this will prevent the install.sh from succeeded
+      since it requires access to the console**.
+
+After logging in the `dev` directory should point at whatever development
+directory it was pointed at (which is `~/dev/sd8787-test` by default).
+
+``` sh
+Welcome to Buildroot
+192.168.99.2 login: test
+Password: 
+[test@192 ~]$ ls
+dev/
+[test@192 ~]$ ls dev
+2-1-test_drv_load*   genetlink.py      test_fw_bcn*       test_tx_feedback*
+```
+
