@@ -115,8 +115,8 @@ The following scripts are important (in the `scripts` folder):
  - `attach_console`: Allows the user to attach the pandaboards main console
    (usually on /dev/ttyUSB0)-- uses screen to attach to the console.
    **WARNING: this leaves screen running on /dev/ttyUSB0 unless screen is
-   killed (with CTRL-A K)-- this will prevent the install.sh from succeeded
-   since it requires access to the console**.
+   killed (with CTRL-A K)-- this will prevent the install.sh from succeeding
+   (again) since it requires access to the serial console**.
 
 After logging in the `dev` directory should point at whatever development
 directory it was pointed at (which is `~/dev/sd8787-test` by default).
