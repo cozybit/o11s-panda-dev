@@ -1,0 +1,37 @@
+#!/bin/bash
+
+source `dirname $0`/common.sh
+
+usage() {
+cat << EOF
+usage: $0 [<OPTIONS>]
+
+Build buildroot, invokes scripts/gen_rootfs to push rootfs to:
+    \t${NFS_ROOT}
+
+And the kernel to:
+    \t${TFTP_ROOT}/uImage
+
+OPTIONS:
+   -v         Be verbose.
+   -h         Show this message.
+EOF
+}
+
+if [[ -z $UNDER_INSTALL_SH ]]; then
+    while getopts "ckChvfd:" options; do
+        case $options in
+        v ) VERBOSE=1;;
+        h ) usage; exit 0;;
+        * ) echo unkown option: ${option}
+            usage; exit 1;;
+        esac
+    done
+fi
+
+_pushd $BUILDROOT
+
+(Qorerr make || die "Make failed") &
+start_spinner $! "Building buildroot..."
+
+_popd
