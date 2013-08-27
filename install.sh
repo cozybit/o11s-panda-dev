@@ -32,7 +32,6 @@ while getopts "ckChvfd:" options; do
     case $options in
 	c ) CLEAN=1;;
 	C ) CLEAN_TARGET=1;;
-	#k ) KILLSERIAL=1;;
     v ) VERBOSE=1;;
     f ) FORCE=1;;
     h ) usage; exit 0;;
@@ -168,7 +167,7 @@ fi
 
 if [[ ! $DISABLE =~ nobuildroot ]]; then
 
-    $SCRIPTS/build_buildroot
+    VERBOSE=$VERBOSE $SCRIPTS/build_buildroot
 
 fi
 
