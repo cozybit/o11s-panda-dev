@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source `dirname $0`/common.sh
+
+h1 "Starting networking..."
+
+USB_ETH=$(find_asix_eth | item_at 1) 
+[[ -n $USB_ETH ]] || exit 1
+
+Qorerr sudo ifconfig $USB_ETH $SERVER_IP

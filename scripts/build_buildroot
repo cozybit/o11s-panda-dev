@@ -14,15 +14,17 @@ And the kernel to:
 
 OPTIONS:
    -v         Be verbose.
+   -r         Rebuild linux
    -h         Show this message.
 EOF
 }
 
 if [[ -z $UNDER_INSTALL_SH ]]; then
-    while getopts "ckChvfd:" options; do
+    while getopts "rckChvfd:" options; do
         case $options in
         v ) VERBOSE=1;;
         h ) usage; exit 0;;
+        r ) REBUILD=1;;
         * ) echo unkown option: ${option}
             usage; exit 1;;
         esac
@@ -30,6 +32,10 @@ if [[ -z $UNDER_INSTALL_SH ]]; then
 fi
 
 _pushd $BUILDROOT
+
+if [[ -n $REBUILD ]]; then
+    rm -f output/build/linux-ft-sd8787-driver/.stamp_{built,images_installed,target_installed,configured}
+fi
 
 start_spinner "Building buildroot..."
 Qorerr make || die "Make failed"
