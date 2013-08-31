@@ -11,20 +11,27 @@ if ! grep "WIRESHARK_VERSION.*$WIRESHARK_VER" $WIRESHARK_MK &>/dev/null; then
     sed -i "s/\(WIRESHARK_VERSION = \).*/\1$WIRESHARK_VER/" $WIRESHARK_MK
 fi
 
-PATTERN="source.*[\"]package/python-scapy/Config[.]in[\"]"
-LINE="source \"package/python-scapy/Config.in\""
-CFG=$BUILDROOT/package/Config.in
+add_pkg_to_br() {
+    PKG=$1
+    PATTERN="source.*[\"]package/$PKG/Config[.]in[\"]"
+    LINE="source \"package/$PKG/Config.in\""
+    CFG=$BUILDROOT/package/Config.in
 
-echo "Package config: $CFG"
+    echo "Package config: $CFG"
 
-if ! grep $PATTERN $CFG &>/dev/null; then
-    echo "Adding python-scapy to main config..."
-    echo       >>$CFG
-    echo $LINE >>$CFG
-fi
+    if ! grep $PATTERN $CFG &>/dev/null; then
+        echo "Adding $PKG to main config..."
+        echo       >>$CFG
+        echo $LINE >>$CFG
+    fi
 
-D=package/python-scapy
-[ -e "$D" ] || mkdir -vp $D
+    D=package/$PKG
+    [ -e "$D" ] || mkdir -vp $D
+}
+
+# added packages
+add_pkg_to_br python-scapy
+add_pkg_to_br trace-cmd
 
 update_if_newer() {
 
@@ -49,11 +56,11 @@ BR_CFG_DST=$BUILDROOT/.config
 update_if_newer $BR_CFG_SRC $BR_CFG_DST
 
 SCAPY_CFG_SRC=$(sub_cfg_vars $CONF/scapy_Config.in)
-SCAPY_CFG_DST=$D/Config.in
+SCAPY_CFG_DST=package/python-scapy/Config.in
 update_if_newer $SCAPY_CFG_SRC $SCAPY_CFG_DST
 
 SCAPY_MAKEFILE_SRC=$(sub_cfg_vars $CONF/python-scapy.mk)
-SCAPY_MAKEFILE_DST=$D/python-scapy.mk
+SCAPY_MAKEFILE_DST=package/python-scapy/python-scapy.mk
 
 update_if_newer $SCAPY_MAKEFILE_SRC $SCAPY_MAKEFILE_DST
 
@@ -72,4 +79,15 @@ LINUX_CONFIG_DST=$BUILDROOT/linux.config
 
 update_if_newer $LINUX_CONFIG_SRC $LINUX_CONFIG_DST
 
+TRACE_CMD_MAKEFILE_SRC=$(sub_cfg_vars $CONF/trace-cmd.mk)
+TRACE_CMD_MAKEFILE_DST=package/trace-cmd/trace-cmd.mk
+
+update_if_newer $TRACE_CMD_MAKEFILE_SRC $TRACE_CMD_MAKEFILE_DST
+
+TRACE_CMD_CONFIG_SRC=$(sub_cfg_vars $CONF/trace-cmd_Config.in)
+TRACE_CMD_CONFIG_DST=package/trace-cmd/Config.in
+update_if_newer $TRACE_CMD_CONFIG_SRC $TRACE_CMD_CONFIG_DST
+
 _popd
+
+# vim: et:ts=4:sw=4:

@@ -1,0 +1,2 @@
+config BR2_PACKAGE_TRACE_CMD
+	bool "trace-cmd"
