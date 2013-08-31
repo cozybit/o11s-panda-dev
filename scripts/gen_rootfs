@@ -15,7 +15,7 @@ fi
 
 if [[ $(mount | grep '^/' | grep -v '^/dev' | wc -l) -gt 0 ]] ; then
     mount | grep '^/' | grep -v '^/dev' 
-    die "**WARNING** Something from host filesystem is still mounted!"
+#    die "**WARNING** Something from host filesystem is still mounted!"
     CLEAN_TARGET=
 fi
 
