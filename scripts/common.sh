@@ -16,7 +16,14 @@ BUILDROOT=$OUT/buildroot
 HOST_OVERLAY=$ROOT/overlay/host
 TARGET_OVERLAY=$ROOT/overlay/target
 
-source $D/../install.cfg
+CFG=$D/../install.cfg
+
+if [[ -f $CFG ]]; then
+    source $CFG
+else
+    echo "Could not find install.cfg, please see install.cfg.example"
+    exit 1
+fi
 
 # print message and exit the script
 # usage: die <message>
