@@ -6,5 +6,3 @@ T=$BUILDROOT/output/toolchain/uClibc-0.9.33.2/.config
 
 cp $CONF/uclibc.config $T && (cd $BUILDROOT && make uclibc-menuconfig) \
     && cp $T $CONF/uclibc.config
-#cp $CONF/buildroot.config $T && (cd $BUILDROOT && make menuconfig) \
-    #&& cp $T $CONF/buildroot.config
