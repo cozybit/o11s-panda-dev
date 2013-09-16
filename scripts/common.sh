@@ -368,6 +368,7 @@ find_pxe_mac_addr() {
 
     touch $output_file
 
+    sudo stty -F $usb_serial 115200
     sudo dd if=$usb_serial bs=1 of=$output_file &
     local pid=$!
 
