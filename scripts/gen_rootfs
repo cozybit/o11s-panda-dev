@@ -67,7 +67,8 @@ if Q mount | grep $TEST; then
     die "Is $TEST already mounted?"
 fi
 
+sudo chown -R ${USER} $TEST_HOME
+git clone $GIT_TESTSUITE_URL $TEST
 sudo chown -R 1001:10 $TEST_HOME
-sudo mount --bind $DEV_HOST $TEST
 
 echo "Done"

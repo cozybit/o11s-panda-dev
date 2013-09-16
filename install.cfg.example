@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Most likely to need customization:
-DEV_HOST=${HOME}/dev/sd8787-test
 MRVL_FIRMWARE=${TARGET_OVERLAY}/sd8787_uapsta.bin
 
 # Might need to change
@@ -13,6 +12,8 @@ PXE_ROOT=${TFTP_ROOT}/pxelinux.cfg
 
 GIT_VERSION="ft-sd8787-driver"
 GIT_URL="git@github.com:cozybit/open80211s.git"
+
+GIT_TESTSUITE_URL=git@github.com:cozybit/sd8787-test.git
 
 # Probably don't need to change:
 TARGET_IP=192.168.99.2

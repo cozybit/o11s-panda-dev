@@ -312,7 +312,7 @@ sub_cfg_vars() {
     local inp=$1
     local out=$inp.sub_cfg_vars
     sed \
-        -e "s#@DEV_HOST@#${DEV_HOST}#g" \
+        -e "s#@GIT_TESTSUITE_URL@#${GIT_TESTSUITE_URL}#g" \
         -e "s#@MRVL_FIRMWARE@#${MRVL_FIRMWARE}#g" \
         -e "s#@NFS_ROOT@#${NFS_ROOT}#g" \
         -e "s#@TEST_HOME@#${TEST_HOME}#g" \
