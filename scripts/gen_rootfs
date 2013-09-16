@@ -68,7 +68,8 @@ if Q mount | grep $TEST; then
 fi
 
 sudo chown -R ${USER} $TEST_HOME
-git clone $GIT_TESTSUITE_URL $TEST
+[ -d $TEST/.git ] && { pushd $TEST; git pull; popd; }
+[ -d $TEST/.git ] || git clone $GIT_TESTSUITE_URL $TEST
 sudo chown -R 1001:10 $TEST_HOME
 
 echo "Done"
