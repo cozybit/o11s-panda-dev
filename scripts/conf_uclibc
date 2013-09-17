@@ -5,4 +5,5 @@ source `dirname $0`/common.sh
 T=$BUILDROOT/output/toolchain/uClibc-0.9.33.2/.config
 
 cp $CONF/uclibc.config $T && (cd $BUILDROOT && make uclibc-menuconfig) \
-    && cp $T $CONF/uclibc.config
+    && cp $T $CONF/uclibc.config \
+    && touch $CONF/uclibc.config && $SCRIPTS/patch_buildroot

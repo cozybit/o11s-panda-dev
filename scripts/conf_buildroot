@@ -5,4 +5,5 @@ source `dirname $0`/common.sh
 T=$BUILDROOT/.config
 
 cp $CONF/buildroot.config $T && (cd $BUILDROOT && make menuconfig) \
-    && cp $T $CONF/buildroot.config
+    && cp $T $CONF/buildroot.config \
+    && touch $CONF/buildroot.config && $SCRIPTS/patch_buildroot
