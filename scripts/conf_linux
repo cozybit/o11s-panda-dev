@@ -6,4 +6,4 @@ T=$BUILDROOT/output/build/linux-ft-sd8787-driver/.config
 
 cp $CONF/linux.config $T && (cd $BUILDROOT && make linux-menuconfig) \
     && cp $T $CONF/linux.config \
-    && touch $CONF/linux.config && $SCRIPTS/patch_buildroot
+    && sleep_touch $CONF/linux.config && $SCRIPTS/patch_buildroot

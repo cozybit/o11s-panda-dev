@@ -411,6 +411,13 @@ is_empty_dir() {
     [[ $(ls -A "$dir" -1 | wc -l) -le 0 ]]
 }
 
+sleep_touch() {
+    local file=$1
+    [[ -n $file ]] || die "Specificy a file to touch"
+    sleep 1
+    touch $1
+}
+
 Q echo "ROOT: $ROOT"
 Q echo "OUT: $OUT"
 Q echo "BUILDROOT: $BUILDROOT"

@@ -6,4 +6,4 @@ T=$BUILDROOT/.config
 
 cp $CONF/buildroot.config $T && (cd $BUILDROOT && make menuconfig) \
     && cp $T $CONF/buildroot.config \
-    && touch $CONF/buildroot.config && $SCRIPTS/patch_buildroot
+    && sleep_touch $CONF/buildroot.config && $SCRIPTS/patch_buildroot

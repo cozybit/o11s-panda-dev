@@ -6,4 +6,4 @@ T=$BUILDROOT/output/build/busybox-1.21.0/.config
 
 cp $CONF/busybox.config $T && (cd $BUILDROOT && make busybox-menuconfig) \
     && cp $T $CONF/busybox.config \
-    && touch $CONF/busybox.config && $SCRIPTS/patch_buildroot
+    && sleep_touch $CONF/busybox.config && $SCRIPTS/patch_buildroot
