@@ -57,7 +57,7 @@ sudo ln -vsf ../../bin/vi
 popd
 
 echo "Copying user information..."
-sudo cp -vf $TARGET_OVERLAY/{sudoers,passwd,group,shadow,sshd_config,fstab,modprobe.d} $ROOT/etc
+sudo cp -vfr $TARGET_OVERLAY/{sudoers,passwd,group,shadow,sshd_config,fstab,modprobe.d} $ROOT/etc
 
 echo "Creating 'test' user home dir..."
 
