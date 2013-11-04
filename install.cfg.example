@@ -36,3 +36,6 @@ BUILDROOT_VER=2013.05
 BUILDROOT_URL="http://buildroot.uclibc.org/downloads/buildroot-${BUILDROOT_VER}.tar.bz2"
 
 USBBOOT_URL="https://code.launchpad.net/~linaro-maintainers/+archive/staging-overlay/+files/u-boot-linaro-omap4-panda-splusb_2012.08.2%2B6697%2B48%2B201211212230%7Eprecise1_armhf.deb"
+
+# On Debian / Ubuntu we must change this file to allow udhcpd to start
+UDHCPD_DEFAULT="/etc/default/udhcpd"

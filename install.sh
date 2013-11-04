@@ -47,6 +47,11 @@ UNDER_INSTALL_SH=1
 h1 "Requesting root... "
 sudo echo "...got root."
 
+if [[ -z $UDHCPD_DEFAULT ]]; then
+    UDHCPD_DEFAULT="/etc/default/udhcpd"
+    echo "Warning: setting default for UDHCPD_DEFAULT ($UDHCPD_DEFAULT), please add this to install.cfg."
+fi
+
 _pushd vendor
 
 if [[ ! $DISABLE =~ nodownload ]]; then
@@ -133,6 +138,15 @@ if [[ ! $DISABLE =~ noconfig ]]; then
     sudo mkdir -p $NFS_ROOT
     sudo mkdir -p $DEV_TARGET
     sudo mkdir -p $TFTP_ROOT
+
+    if [[ ! -f $UDHCPD_DEFAULT ]]; then
+        die "Could not find '$UDHCPD_DEFAULT' config file, this is needed on Debian / Ubuntu to allow udhcpd to start."
+    fi
+
+    if ! grep -q 'DHCPD_ENABLED="yes"' $UDHCPD_DEFAULT; then
+        h2 "Fixing $UDHCPD_DEFAULT to allow udhcpd service to start..."
+        Qorerr sudo sed -i.old -e 's#\(.*DHCPD_ENABLED="\)\(.*\)\(".*\)#\1\yes\3#' $UDHCPD_DEFAULT
+    fi
 
     h1 "Installing host config files..."
     USB_ETH=$(find_asix_eth | item_at 1) 
