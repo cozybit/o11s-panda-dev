@@ -25,7 +25,7 @@ add_pkg_to_br() {
         echo $LINE >>$CFG
     fi
 
-    D=package/$PKG
+    D=$BUILDROOT/package/$PKG
     [ -e "$D" ] || mkdir -vp $D
 }
 
@@ -45,6 +45,7 @@ update_if_newer() {
 
     if [[ ! -f $dst || $src_cmp -nt $dst ]]; then
         echo "Updating '$dst'..."
+        mkdir -vp `dirname $dst`
         cp -vf $src $dst
     fi
 }
