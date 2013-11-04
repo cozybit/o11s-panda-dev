@@ -39,3 +39,4 @@ USBBOOT_URL="https://code.launchpad.net/~linaro-maintainers/+archive/staging-ove
 
 # On Debian / Ubuntu we must change this file to allow udhcpd to start
 UDHCPD_DEFAULT="/etc/default/udhcpd"
+UDHCPD_CONF="/etc/udhcpd.conf"

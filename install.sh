@@ -47,10 +47,7 @@ UNDER_INSTALL_SH=1
 h1 "Requesting root... "
 sudo echo "...got root."
 
-if [[ -z $UDHCPD_DEFAULT ]]; then
-    UDHCPD_DEFAULT="/etc/default/udhcpd"
-    echo "Warning: setting default for UDHCPD_DEFAULT ($UDHCPD_DEFAULT), please add this to install.cfg."
-fi
+set_cfg_defaults_and_warn
 
 _pushd vendor
 
@@ -157,7 +154,7 @@ if [[ ! $DISABLE =~ noconfig ]]; then
     inetd_conf=$(sub_cfg_vars $HOST_OVERLAY/inetd.conf)
 
     add_config_lines $nfs_exports /etc/exports
-    add_config_lines $udhcpd_conf /etc/udhcpd.conf
+    add_config_lines $udhcpd_conf $UDHCPD_CONF $FORCE
     add_config_lines $inetd_conf /etc/inetd.conf
 
     sudo mkdir -p $PXE_ROOT

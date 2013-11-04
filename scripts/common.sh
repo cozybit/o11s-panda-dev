@@ -291,6 +291,7 @@ add_config_lines() {
 
     local src_file=$1
     local dst_file=$2
+    local force_cfg=$3
 
     local lines_present=$(
         grep --fixed-strings --file=$src_file --line-regexp $dst_file \
@@ -301,8 +302,18 @@ add_config_lines() {
 
     if [[ $lines_present -eq 0 ]] ; then
         sudo sh -c "cat $src_file >>$dst_file"
+    elif [[ $lines_present -ne $lines_needed ]] && [[ -n $force_cfg ]]; then
+        if [[ $dst_file == $UDHCPD_CONF ]]; then
+            sudo sh -c "cat $src_file >$dst_file"
+        else
+            die "add_config_lines: -f not support for this file: $dst_file"
+        fi
     elif [[ $lines_present -ne $lines_needed ]] ; then
-        die "File '$dst_file' in an unknown state (lines present: $lines_present, lines needed: $lines_needed), bailing..."
+        extra=
+        if [[ $dst_file == $UDHCPD_CONF ]]; then
+            extra=" use -f to force the script to overwrite the existing config (-f is only available for $UDHCPD_CONF)."
+        fi
+        die "File '$dst_file' in an unknown state (lines present: $lines_present, lines needed: $lines_needed), bailing...$extra"
     else
         h2 "File '$dst_file' already contains needed entries"
     fi
@@ -332,6 +343,8 @@ sub_cfg_vars() {
         -e "s#@BUILDROOT_VER@#${BUILDROOT_VER}#g" \
         -e "s#@BUILDROOT_URL@#${BUILDROOT_URL}#g" \
         -e "s#@USBBOOT_URL@#${USBBOOT_URL}#g" \
+        -e "s#@UDHCPD_DEFAULT@#${UDHCPD_DEFAULT}#g" \
+        -e "s#@UDHCPD_CONF@#${UDHCPD_CONF}#g" \
         <$inp >$out
     echo $out
 }
@@ -416,6 +429,17 @@ sleep_touch() {
     [[ -n $file ]] || die "Specificy a file to touch"
     sleep 1
     touch $1
+}
+
+set_cfg_defaults_and_warn() {
+    if [[ -z $UDHCPD_DEFAULT ]]; then
+        UDHCPD_DEFAULT="/etc/default/udhcpd"
+        echo "Warning: setting default for \$UDHCPD_DEFAULT ($UDHCPD_DEFAULT), please add this to install.cfg."
+    fi
+    if [[ -z $UDHCPD_CONF ]]; then
+        UDHCPD_CONF="/etc/udhcpd.conf"
+        echo "Warning: setting default for \$UDHCPD_CONF ($UDHCPD_CONF), please add this to install.cfg."
+    fi
 }
 
 Q echo "ROOT: $ROOT"
