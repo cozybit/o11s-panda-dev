@@ -117,6 +117,7 @@ if [[ ! $DISABLE =~ nopackages ]]; then
 
     force_msg="(Use -f force override of existing packages)"
 
+    install_pkg screen "Failed to install screen! $force_msg" || exit 1
     install_pkg udhcpd "Failed to install DHCP server: udhcpd! $force_msg" || exit 1
     install_pkg nfs-kernel-server "Failed to install NFS server! $force_msg" || exit 1
     install_pkg atftpd "Failed to install TFTP server: atftpd! $force_msg" || exit 1
